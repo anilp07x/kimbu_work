@@ -1,25 +1,43 @@
-# KimbuWork
+# KimbuWork 💼
 
-**Plataforma Flask minimalista para monitorar vagas de emprego em Angola.**
+**Plataforma especializada em Vagas de TI para Engenheiros Informáticos em Angola**
 
-<img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python">
+<img src="https://img.shields.io/badge/Python-3.13+-blue.svg" alt="Python">
 <img src="https://img.shields.io/badge/Flask-3.0-green.svg" alt="Flask">
 <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 
+## 🎯 Sobre o Projeto
+
+O KimbuWork é uma plataforma automatizada que agrega **exclusivamente vagas de Tecnologia da Informação** de múltiplos portais de emprego em Angola. Com classificação inteligente por categorias, níveis de experiência e tecnologias, facilita a busca de oportunidades para profissionais de TI.
+
 ## 🚀 Funcionalidades
 
-- ✅ **Web Scraping Automático**: Coleta vagas de AngoEmprego e JobArtis
-- ✅ **Interface Responsiva**: Design minimalista com Tailwind CSS
-- ✅ **Base de Dados SQLite**: Armazenamento leve e eficiente
-- ✅ **Atualização Automática**: APScheduler para scraping periódico
-- ✅ **API REST**: Endpoints para integração
-- ✅ **Filtros por Fonte**: Organize vagas por portal
-- ✅ **Indicador de Novas Vagas**: Veja rapidamente o que há de novo
+### Core Features
+- ✅ **Filtragem Inteligente de Vagas de TI**: Sistema de classificação automática usando palavras-chave específicas de tecnologia
+- ✅ **Categorização Avançada**: 8 categorias especializadas (Programação, Redes, IT Support, Segurança, Data Science, DevOps, Cloud, Gestão TI)
+- ✅ **Detecção de Nível de Experiência**: Identifica automaticamente vagas Júnior, Pleno e Sénior
+- ✅ **Extração de Tecnologias**: Detecta linguagens, frameworks e ferramentas mencionadas nas vagas
+- ✅ **Web Scraping Automático**: Coleta vagas de AngoEmprego e JobArtis a cada 6 horas
+- ✅ **Interface Responsiva**: Design moderno focado em UX para profissionais de TI
+- ✅ **Base de Dados SQLite**: Armazenamento eficiente com índices otimizados
+- ✅ **API REST Completa**: Endpoints para filtros avançados (categoria, nível, tecnologia, portal)
+- ✅ **Dashboard com Estatísticas**: Breakdown visual por categoria e nível de experiência
+
+### Categorias Suportadas
+1. 💻 **Programação** - Frontend, Backend, Full-stack, Mobile (Python, Java, JavaScript, PHP, C++, etc.)
+2. 🌐 **Redes e Infraestrutura** - Cisco, Mikrotik, CCNA, CCNP, TCP/IP
+3. 🛠️ **IT Support** - Help Desk, Service Desk, Technical Support
+4. 🔒 **Segurança da Informação** - Cybersecurity, Pentesting, SOC, ISO 27001
+5. 📊 **Data Science & BI** - Análise de Dados, Power BI, SQL, Machine Learning
+6. ☁️ **DevOps & Cloud** - AWS, Azure, Docker, Kubernetes, CI/CD
+7. 👔 **Gestão de TI** - Project Manager, Scrum Master, CTO, CIO
+8. ⚙️ **Sistemas e Administração** - Linux, Windows Server, VMware, Virtualization
 
 ## 📋 Pré-requisitos
 
 - Python 3.8 ou superior
 - pip (gerenciador de pacotes Python)
+- Git (para clonar o repositório)
 
 ## 🔧 Instalação
 
@@ -42,7 +60,7 @@ pip install -r requirements.txt
 
 4. **Configure as variáveis de ambiente**
 ```powershell
-cp .env.example .env
+Copy-Item .env.example .env
 # Edite o arquivo .env conforme necessário
 ```
 

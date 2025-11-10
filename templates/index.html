@@ -1,185 +1,370 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-AO">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KimbuWork - Vagas de Emprego em Angola</title>
+    <title>KimbuWork | Vagas de TI para Engenheiros Informáticos em Angola</title>
+    <meta name="description" content="Plataforma especializada em vagas de Tecnologia da Informação em Angola. Programação, Redes, IT Support, DevOps e mais.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+        body { font-family: 'Inter', sans-serif; }
+        .category-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .tech-tag {
+            padding: 0.25rem 0.5rem;
+            background-color: #f3f4f6;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            color: #374151;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+            display: inline-block;
         }
     </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#64748b',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
+    <header class="bg-white border-b border-gray-200">
         <div class="container mx-auto px-4 py-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">KimbuWork</h1>
-                    <p class="text-sm text-gray-600 mt-1">Vagas de emprego em Angola</p>
+                    <h1 class="text-2xl font-bold text-gray-900">KimbuWork</h1>
+                    <p class="text-sm text-gray-600 mt-1">Vagas de TI em Angola</p>
                 </div>
-                <button onclick="forceUpdate()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                    Atualizar Agora
+                <button onclick="updateJobs()" 
+                        class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition duration-200">
+                    <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                    <span>Atualizar</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Stats -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 font-medium">Total de Vagas</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total }}</p>
+    <!-- Stats Dashboard -->
+    <section class="bg-white border-b border-gray-200">
+        <div class="container mx-auto px-4 py-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="border border-gray-200 p-4 rounded-lg">
+                    <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                        <i data-feather="briefcase" class="w-4 h-4"></i>
+                        <span>Total de Vagas</span>
                     </div>
-                    <div class="bg-blue-100 p-3 rounded-full">
-                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
+                    <div id="total-jobs" class="text-2xl font-bold text-gray-900">{{ stats.total }}</div>
+                </div>
+                <div class="border border-gray-200 p-4 rounded-lg">
+                    <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                        <i data-feather="star" class="w-4 h-4"></i>
+                        <span>Novas</span>
                     </div>
+                    <div id="new-jobs" class="text-2xl font-bold text-gray-900">{{ stats.new }}</div>
+                </div>
+                <div class="border border-gray-200 p-4 rounded-lg">
+                    <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                        <i data-feather="globe" class="w-4 h-4"></i>
+                        <span>AngoEmprego</span>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900">{{ stats.by_source.get('AngoEmprego', 0) }}</div>
+                </div>
+                <div class="border border-gray-200 p-4 rounded-lg">
+                    <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                        <i data-feather="globe" class="w-4 h-4"></i>
+                        <span>JobArtis</span>
+                    </div>
+                    <div class="text-2xl font-bold text-gray-900">{{ stats.by_source.get('JobArtis', 0) }}</div>
                 </div>
             </div>
-
-            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 font-medium">Novas Vagas</p>
-                        <p class="text-3xl font-bold text-green-600 mt-2">{{ stats.new }}</p>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-full">
-                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600 font-medium">Última Atualização</p>
-                        <p class="text-lg font-semibold text-gray-900 mt-2">{{ last_update }}</p>
-                    </div>
-                    <div class="bg-purple-100 p-3 rounded-full">
-                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filter -->
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-6 border border-gray-200">
-            <div class="flex items-center gap-4">
-                <label class="text-sm font-medium text-gray-700">Filtrar por fonte:</label>
-                <select id="sourceFilter" onchange="filterBySource()" 
-                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">Todas as fontes</option>
-                    {% for source, count in stats.by_source.items() %}
-                    <option value="{{ source }}">{{ source }} ({{ count }})</option>
+            
+            <!-- Category Stats -->
+            {% if stats.by_category %}
+            <div class="mt-6">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Vagas por Categoria</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for category, count in stats.by_category.items() %}
+                    <button class="category-badge bg-gray-100 text-gray-700 hover:bg-gray-200 transition cursor-pointer" 
+                         onclick="filterByCategory('{{ category }}')">
+                        {{ category }}: <span class="font-bold">{{ count }}</span>
+                    </button>
                     {% endfor %}
-                </select>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="mt-4 text-xs text-gray-500 flex items-center gap-2">
+                <i data-feather="clock" class="w-3 h-3"></i>
+                <span>Última atualização: {{ last_update }}</span>
             </div>
         </div>
+    </section>
 
-        <!-- Jobs List -->
-        <div id="jobsList" class="space-y-4">
+    <!-- Filters -->
+    <section class="container mx-auto px-4 py-6">
+        <div class="bg-white p-4 rounded-lg border border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Category Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+                    <select id="category-filter" onchange="filterJobs()" title="Filtrar por categoria"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="">Todas as Categorias</option>
+                        <option value="Programação">Programação</option>
+                        <option value="Redes e Infraestrutura">Redes e Infraestrutura</option>
+                        <option value="IT Support">IT Support</option>
+                        <option value="Segurança da Informação">Segurança da Informação</option>
+                        <option value="Data Science & BI">Data Science & BI</option>
+                        <option value="DevOps & Cloud">DevOps & Cloud</option>
+                        <option value="Gestão de TI">Gestão de TI</option>
+                        <option value="Sistemas e Administração">Sistemas e Administração</option>
+                    </select>
+                </div>
+                
+                <!-- Experience Level Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nível de Experiência</label>
+                    <select id="level-filter" onchange="filterJobs()" title="Filtrar por nível"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="">Todos os Níveis</option>
+                        <option value="Júnior">Júnior</option>
+                        <option value="Pleno">Pleno</option>
+                        <option value="Sénior">Sénior</option>
+                    </select>
+                </div>
+                
+                <!-- Source Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Portal</label>
+                    <select id="source-filter" onchange="filterJobs()" title="Filtrar por portal"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <option value="">Todos os Portais</option>
+                        <option value="AngoEmprego">AngoEmprego</option>
+                        <option value="JobArtis">JobArtis</option>
+                    </select>
+                </div>
+                
+                <!-- Only New Toggle -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filtros Especiais</label>
+                    <div class="flex items-center h-10">
+                        <input type="checkbox" id="new-only" onchange="filterJobs()" 
+                               class="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+                        <label for="new-only" class="text-sm text-gray-700">Apenas Novas</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Job Listings -->
+    <main class="container mx-auto px-4 pb-12">
+        <div id="jobs-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for job in jobs %}
-            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-6 border border-gray-200">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            <h3 class="text-xl font-semibold text-gray-900">{{ job.title }}</h3>
-                            {% if job.is_new %}
-                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Nova</span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                            <span class="flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                </svg>
-                                {{ job.company }}
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                {{ job.location }}
-                            </span>
-                            <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium">{{ job.source }}</span>
-                        </div>
-                        
-                        {% if job.description %}
-                        <p class="text-gray-700 text-sm mb-3 line-clamp-2">{{ job.description[:200] }}...</p>
+            <div class="job-card bg-white rounded-lg border border-gray-200 hover:border-blue-500 transition-all duration-200 p-5"
+                 data-categories="{{ job.categories|join(',') }}"
+                 data-level="{{ job.experience_level }}"
+                 data-source="{{ job.source }}"
+                 data-is-new="{{ job.is_new }}">
+                
+                {% if job.is_new %}
+                <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded mb-3 font-medium">
+                    <i data-feather="star" class="w-3 h-3"></i>
+                    Nova
+                </span>
+                {% endif %}
+                
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">{{ job.title }}</h3>
+                
+                <div class="space-y-2 mb-4 text-sm text-gray-600">
+                    <div class="flex items-center gap-2">
+                        <i data-feather="building" class="w-4 h-4"></i>
+                        <span>{{ job.company or 'N/A' }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-feather="map-pin" class="w-4 h-4"></i>
+                        <span>{{ job.location or 'Angola' }}</span>
+                    </div>
+                    {% if job.experience_level and job.experience_level != 'Não especificado' %}
+                    <div class="flex items-center gap-2">
+                        <i data-feather="trending-up" class="w-4 h-4"></i>
+                        <span class="font-medium text-gray-900">{{ job.experience_level }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Categories -->
+                {% if job.categories %}
+                <div class="mb-3 flex flex-wrap gap-1">
+                    {% for category in job.categories %}
+                    <span class="text-xs px-2 py-1 rounded border
+                        {% if 'Programação' in category %}border-blue-300 bg-blue-50 text-blue-700
+                        {% elif 'Redes' in category %}border-green-300 bg-green-50 text-green-700
+                        {% elif 'Support' in category %}border-yellow-300 bg-yellow-50 text-yellow-700
+                        {% elif 'Segurança' in category %}border-red-300 bg-red-50 text-red-700
+                        {% elif 'Data' in category %}border-purple-300 bg-purple-50 text-purple-700
+                        {% elif 'DevOps' in category or 'Cloud' in category %}border-indigo-300 bg-indigo-50 text-indigo-700
+                        {% elif 'Gestão' in category %}border-gray-300 bg-gray-50 text-gray-700
+                        {% else %}border-teal-300 bg-teal-50 text-teal-700
+                        {% endif %}">
+                        {{ category }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Technologies -->
+                {% if job.technologies %}
+                <div class="mb-4">
+                    <div class="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                        <i data-feather="code" class="w-3 h-3"></i>
+                        <span>Tecnologias</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        {% for tech in job.technologies[:5] %}
+                        <span class="tech-tag">{{ tech }}</span>
+                        {% endfor %}
+                        {% if job.technologies|length > 5 %}
+                        <span class="tech-tag font-medium">+{{ job.technologies|length - 5 }}</span>
                         {% endif %}
                     </div>
-                    
+                </div>
+                {% endif %}
+                
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <span class="text-xs text-gray-500">{{ job.source }}</span>
                     <a href="{{ job.url }}" target="_blank" 
-                       class="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap">
-                        Ver Vaga
+                       class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 text-sm font-medium">
+                        <span>Ver Vaga</span>
+                        <i data-feather="arrow-right" class="w-4 h-4"></i>
                     </a>
                 </div>
             </div>
-            {% else %}
-            <div class="bg-white rounded-lg shadow-sm p-12 text-center border border-gray-200">
-                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">Nenhuma vaga encontrada</h3>
-                <p class="text-gray-600">Clique em "Atualizar Agora" para buscar novas vagas.</p>
-            </div>
             {% endfor %}
         </div>
-    </div>
+        
+        {% if not jobs %}
+        <div class="text-center py-16 bg-white rounded-lg border border-gray-200">
+            <i data-feather="search" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma vaga encontrada</h3>
+            <p class="text-gray-500 mb-4">Não há vagas de TI disponíveis no momento.</p>
+            <button onclick="updateJobs()" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                <span>Atualizar Vagas</span>
+            </button>
+        </div>
+        {% endif %}
+    </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-12">
-        <div class="container mx-auto px-4 py-6 text-center text-gray-600 text-sm">
-            <p>&copy; 2025 KimbuWork - Agregador de vagas de emprego em Angola</p>
+    <footer class="bg-white border-t border-gray-200 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-600 text-sm">KimbuWork - Vagas de TI em Angola</p>
+            <p class="text-gray-400 text-xs mt-1">Plataforma para Engenheiros Informáticos</p>
         </div>
     </footer>
 
     <script>
-        function forceUpdate() {
-            if (confirm('Deseja buscar novas vagas agora?')) {
-                const button = event.target.closest('button');
-                button.disabled = true;
-                button.innerHTML = '<svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Atualizando...';
+        // Initialize Feather Icons
+        feather.replace();
+        
+        // Filter Jobs
+        function filterJobs() {
+            const category = document.getElementById('category-filter').value;
+            const level = document.getElementById('level-filter').value;
+            const source = document.getElementById('source-filter').value;
+            const onlyNew = document.getElementById('new-only').checked;
+            
+            const jobCards = document.querySelectorAll('.job-card');
+            let visibleCount = 0;
+            
+            jobCards.forEach(card => {
+                let show = true;
                 
-                fetch('/api/scrape', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        location.reload();
-                    })
-                    .catch(error => {
-                        alert('Erro ao atualizar: ' + error);
-                        button.disabled = false;
-                        button.innerHTML = 'Atualizar Agora';
-                    });
+                if (category && !card.dataset.categories.includes(category)) {
+                    show = false;
+                }
+                
+                if (level && card.dataset.level !== level) {
+                    show = false;
+                }
+                
+                if (source && card.dataset.source !== source) {
+                    show = false;
+                }
+                
+                if (onlyNew && card.dataset.isNew !== 'True') {
+                    show = false;
+                }
+                
+                card.style.display = show ? 'block' : 'none';
+                if (show) visibleCount++;
+            });
+            
+            // Show/hide empty state
+            const container = document.getElementById('jobs-container');
+            const emptyState = document.getElementById('empty-state');
+            if (emptyState) {
+                emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
             }
         }
-
-        function filterBySource() {
-            const source = document.getElementById('sourceFilter').value;
-            const url = source ? `/api/jobs?source=${source}` : '/';
-            window.location.href = url;
+        
+        function filterByCategory(category) {
+            document.getElementById('category-filter').value = category;
+            filterJobs();
+            window.scrollTo({ top: 400, behavior: 'smooth' });
         }
+        
+        async function updateJobs() {
+            const btn = event.target.closest('button');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-feather="loader" class="w-4 h-4 animate-spin"></i><span>A atualizar...</span>';
+            feather.replace();
+            
+            try {
+                const response = await fetch('/api/scrape', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erro: ' + data.message);
+                    btn.innerHTML = originalContent;
+                    feather.replace();
+                }
+            } catch (error) {
+                alert('Erro ao atualizar vagas. Tente novamente.');
+                btn.innerHTML = originalContent;
+                feather.replace();
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        // Mark all as seen when page loads
+        fetch('/api/mark-seen', { method: 'POST' })
+            .catch(err => console.error('Error marking jobs as seen:', err));
     </script>
+</body>
+</html>
 </body>
 </html>

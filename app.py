@@ -1,5 +1,6 @@
 """
 Aplicação Flask principal do KimbuWork
+Plataforma especializada em Vagas de TI para Engenheiros Informáticos em Angola
 """
 from flask import Flask, render_template, jsonify, request
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -9,6 +10,7 @@ import atexit
 from config import Config
 from scraper_manager import ScraperManager
 from database import Database
+from it_classifier import ITJobClassifier
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -49,17 +51,35 @@ def index():
 
 @app.route('/api/jobs')
 def api_jobs():
-    """API endpoint para listar vagas"""
+    """API endpoint para listar vagas com filtros avançados"""
     limit = request.args.get('limit', 50, type=int)
     source = request.args.get('source', None)
+    category = request.args.get('category', None)
+    experience_level = request.args.get('level', None)
+    only_new = request.args.get('only_new', False, type=bool)
     
-    jobs = scraper_manager.get_jobs(limit=limit, source=source)
+    jobs = db.get_jobs(
+        limit=limit, 
+        source=source, 
+        category=category,
+        experience_level=experience_level,
+        only_new=only_new,
+        only_it=True
+    )
     return jsonify(jobs)
+
+
+@app.route('/api/categories')
+def api_categories():
+    """API endpoint para listar todas as categorias"""
+    from it_classifier import ITJobClassifier
+    categories = ITJobClassifier.get_all_categories()
+    return jsonify({'categories': categories})
 
 
 @app.route('/api/stats')
 def api_stats():
-    """API endpoint para estatísticas"""
+    """API endpoint para estatísticas detalhadas"""
     stats = scraper_manager.get_stats()
     return jsonify(stats)
 

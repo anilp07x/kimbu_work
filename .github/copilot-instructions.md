@@ -1,13 +1,14 @@
 # KimbuWork - Copilot Instructions
 
 ## Project Overview
-KimbuWork is a minimalist Flask-based job aggregator focused on employment opportunities in Angola. The application uses web scraping to collect job listings from AngoEmprego and JobArtis, storing them in SQLite with automatic updates.
+KimbuWork is a **specialized Flask-based job aggregator focused exclusively on IT/Technology employment opportunities in Angola**. The platform uses intelligent classification to filter and categorize tech jobs from multiple sources (AngoEmprego, JobArtis), providing an optimized experience for Computer Engineering professionals seeking opportunities in: Programming, Networks, IT Support, Cybersecurity, Data Science, DevOps, Cloud, and IT Management.
 
 ## Tech Stack
 - **Backend Framework**: Flask 3.0 (web framework)
 - **Web Scraping**: BeautifulSoup4, Requests
 - **Database**: SQLite3 (with custom ORM wrapper)
-- **Job Scheduling**: APScheduler (automatic scraping)
+- **Job Scheduling**: APScheduler (automatic scraping every 6 hours)
+- **IT Classification**: Custom `ITJobClassifier` with keyword-based categorization
 - **Frontend**: HTML5, Tailwind CSS (via CDN), Vanilla JavaScript
 - **Configuration**: python-dotenv for environment variables
 
@@ -31,18 +32,27 @@ pip install -r requirements.txt
 ## Project Architecture
 
 ### Key Components
-1. **Web Application** (`app.py`): Flask routes, templates, and API endpoints
-2. **Database Layer** (`database.py`): SQLite wrapper with job storage and retrieval
-3. **Scraper System**:
-   - `scrapers/base_scraper.py`: Abstract base class for all scrapers
-   - `scrapers/angoemprego_scraper.py`: AngoEmprego scraper implementation
-   - `scrapers/jobartis_scraper.py`: JobArtis scraper implementation
-4. **Scraper Manager** (`scraper_manager.py`): Orchestrates scraper execution
-5. **Scheduler**: APScheduler runs scrapers every 6 hours (configurable)
-6. **Configuration** (`config.py`): Centralized settings from `.env`
+1. **Web Application** (`app.py`): Flask routes, templates, and API endpoints with IT-specific filters
+2. **Database Layer** (`database.py`): SQLite wrapper with IT job categorization fields
+3. **IT Classifier** (`it_classifier.py`): Intelligent categorization system with 8 IT categories
+4. **Scraper System**:
+   - `scrapers/base_scraper.py`: Abstract base class with IT classification integration
+   - `scrapers/angoemprego_scraper.py`: AngoEmprego scraper with IT filtering
+   - `scrapers/jobartis_scraper.py`: JobArtis scraper with IT filtering
+5. **Scraper Manager** (`scraper_manager.py`): Orchestrates scraper execution
+6. **Scheduler**: APScheduler runs scrapers every 6 hours (configurable)
+7. **Configuration** (`config.py`): Centralized settings from `.env`
+
+### IT Classification System
+The `ITJobClassifier` provides:
+- **8 Specialized Categories**: Programming, Networks & Infrastructure, IT Support, Cybersecurity, Data Science & BI, DevOps & Cloud, IT Management, Systems Administration
+- **Experience Level Detection**: Automatically identifies Júnior, Pleno, Sénior positions
+- **Technology Extraction**: Identifies programming languages, frameworks, tools mentioned
+- **IT Filtering**: Only stores jobs related to Information Technology
 
 ### Design Patterns
 - **Template Method**: `BaseScraper` defines scraping workflow, subclasses implement site-specific parsing
+- **Strategy Pattern**: `ITJobClassifier` uses keyword-based strategies for each category
 - **Singleton Database Connection**: Context manager for SQLite connections
 - **Background Scheduling**: APScheduler for periodic scraping without blocking Flask
 - **Responsive Design**: Mobile-first with Tailwind CSS utility classes

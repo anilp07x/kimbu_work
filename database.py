@@ -37,7 +37,11 @@ class Database:
                 source TEXT NOT NULL,
                 posted_date TEXT,
                 scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                is_new BOOLEAN DEFAULT 1
+                is_new BOOLEAN DEFAULT 1,
+                categories TEXT,
+                experience_level TEXT,
+                technologies TEXT,
+                is_it_job BOOLEAN DEFAULT 0
             )
         ''')
         
@@ -45,6 +49,8 @@ class Database:
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_source ON jobs(source)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_posted_date ON jobs(posted_date DESC)')
         cursor.execute('CREATE INDEX IF NOT EXISTS idx_is_new ON jobs(is_new)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_is_it_job ON jobs(is_it_job)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_experience_level ON jobs(experience_level)')
         
         conn.commit()
         conn.close()
@@ -58,9 +64,16 @@ class Database:
         cursor = conn.cursor()
         
         try:
+            # Converte listas para strings JSON se existirem
+            categories = ','.join(job_data.get('categories', []))
+            technologies = ','.join(job_data.get('technologies', []))
+            
             cursor.execute('''
-                INSERT INTO jobs (title, company, location, description, url, source, posted_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO jobs (
+                    title, company, location, description, url, source, posted_date,
+                    categories, experience_level, technologies, is_it_job
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 job_data.get('title'),
                 job_data.get('company'),
@@ -68,7 +81,11 @@ class Database:
                 job_data.get('description'),
                 job_data.get('url'),
                 job_data.get('source'),
-                job_data.get('posted_date')
+                job_data.get('posted_date'),
+                categories,
+                job_data.get('experience_level'),
+                technologies,
+                job_data.get('is_it_job', 0)
             ))
             conn.commit()
             conn.close()
@@ -78,17 +95,30 @@ class Database:
             conn.close()
             return False
     
-    def get_jobs(self, limit: int = 50, source: str = None, only_new: bool = False) -> List[Dict]:
-        """Obtém lista de vagas"""
+    def get_jobs(self, limit: int = 50, source: str = None, only_new: bool = False, 
+                 category: str = None, experience_level: str = None, 
+                 only_it: bool = True) -> List[Dict]:
+        """Obtém lista de vagas com filtros avançados"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         query = 'SELECT * FROM jobs WHERE 1=1'
         params = []
         
+        if only_it:
+            query += ' AND is_it_job = 1'
+        
         if source:
             query += ' AND source = ?'
             params.append(source)
+        
+        if category:
+            query += ' AND categories LIKE ?'
+            params.append(f'%{category}%')
+        
+        if experience_level:
+            query += ' AND experience_level = ?'
+            params.append(experience_level)
         
         if only_new:
             query += ' AND is_new = 1'
@@ -97,9 +127,23 @@ class Database:
         params.append(limit)
         
         cursor.execute(query, params)
-        jobs = [dict(row) for row in cursor.fetchall()]
-        conn.close()
+        jobs = []
+        for row in cursor.fetchall():
+            job = dict(row)
+            # Converte strings separadas por vírgula de volta para listas
+            if job.get('categories'):
+                job['categories'] = job['categories'].split(',')
+            else:
+                job['categories'] = []
+            
+            if job.get('technologies'):
+                job['technologies'] = job['technologies'].split(',')
+            else:
+                job['technologies'] = []
+            
+            jobs.append(job)
         
+        conn.close()
         return jobs
     
     def mark_jobs_as_seen(self):
@@ -111,27 +155,49 @@ class Database:
         conn.close()
     
     def get_stats(self) -> Dict:
-        """Obtém estatísticas das vagas"""
+        """Obtém estatísticas das vagas com breakdown por categorias"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT COUNT(*) as total FROM jobs')
+        cursor.execute('SELECT COUNT(*) as total FROM jobs WHERE is_it_job = 1')
         total = cursor.fetchone()['total']
         
-        cursor.execute('SELECT COUNT(*) as new FROM jobs WHERE is_new = 1')
+        cursor.execute('SELECT COUNT(*) as new FROM jobs WHERE is_new = 1 AND is_it_job = 1')
         new = cursor.fetchone()['new']
         
         cursor.execute('''
             SELECT source, COUNT(*) as count 
             FROM jobs 
+            WHERE is_it_job = 1
             GROUP BY source
         ''')
         by_source = {row['source']: row['count'] for row in cursor.fetchall()}
+        
+        # Estatísticas por categoria
+        cursor.execute('SELECT categories FROM jobs WHERE is_it_job = 1 AND categories IS NOT NULL AND categories != ""')
+        all_categories = {}
+        for row in cursor.fetchall():
+            cats = row['categories'].split(',')
+            for cat in cats:
+                cat = cat.strip()
+                if cat:
+                    all_categories[cat] = all_categories.get(cat, 0) + 1
+        
+        # Estatísticas por nível de experiência
+        cursor.execute('''
+            SELECT experience_level, COUNT(*) as count 
+            FROM jobs 
+            WHERE is_it_job = 1 AND experience_level IS NOT NULL AND experience_level != ""
+            GROUP BY experience_level
+        ''')
+        by_level = {row['experience_level']: row['count'] for row in cursor.fetchall()}
         
         conn.close()
         
         return {
             'total': total,
             'new': new,
-            'by_source': by_source
+            'by_source': by_source,
+            'by_category': all_categories,
+            'by_level': by_level
         }

@@ -72,11 +72,16 @@ class AngoEmpregoScraper(BaseScraper):
                     'posted_date': None
                 }
                 
-                jobs.append(job)
+                # Classificar e enriquecer com informações de TI
+                job = self.classify_and_enrich_job(job)
+                
+                # Apenas adicionar se for vaga de TI
+                if job.get('is_it_job'):
+                    jobs.append(job)
                 
             except Exception as e:
                 print(f"Erro ao processar vaga no {self.name}: {e}")
                 continue
         
-        print(f"✓ {self.name}: {len(jobs)} vagas encontradas")
+        print(f"✓ {self.name}: {len(jobs)} vagas de TI encontradas")
         return jobs

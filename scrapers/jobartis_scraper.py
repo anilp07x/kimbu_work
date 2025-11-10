@@ -82,13 +82,16 @@ class JobArtisScraper(BaseScraper):
                     'posted_date': None
                 }
                 
-                # Validar que é uma vaga real (não link de menu, etc)
-                if len(title) > 3 and 'emprego-' in job_url:
+                # Classificar e enriquecer com informações de TI
+                job = self.classify_and_enrich_job(job)
+                
+                # Validar que é uma vaga real de TI (não link de menu, etc)
+                if len(title) > 3 and 'emprego-' in job_url and job.get('is_it_job'):
                     jobs.append(job)
                 
             except Exception as e:
                 print(f"Erro ao processar vaga no {self.name}: {e}")
                 continue
         
-        print(f"✓ {self.name}: {len(jobs)} vagas encontradas")
+        print(f"✓ {self.name}: {len(jobs)} vagas de TI encontradas")
         return jobs
